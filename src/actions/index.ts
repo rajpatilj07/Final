@@ -17,7 +17,7 @@ export async function submitDistributorLead(formData: unknown) {
     return { success: false, error: parsed.error.errors[0].message }
   }
 
-  const supabase = await createClient()
+  const supabase = (await createClient()) as any
 
   const { error } = await supabase
     .from('distributor_leads')
@@ -38,7 +38,7 @@ export async function submitContactMessage(formData: unknown) {
     return { success: false, error: parsed.error.errors[0].message }
   }
 
-  const supabase = await createClient()
+  const supabase = (await createClient()) as any
 
   const { error } = await supabase
     .from('contact_messages')
@@ -59,7 +59,7 @@ export async function createProduct(formData: unknown) {
     return { success: false, error: parsed.error.errors[0].message }
   }
 
-  const supabase = await createClient()
+  const supabase = (await createClient()) as any
 
   const { error } = await supabase
     .from('products')
@@ -82,7 +82,7 @@ export async function updateProduct(id: string, formData: unknown) {
     return { success: false, error: parsed.error.errors[0].message }
   }
 
-  const supabase = await createClient()
+  const supabase = (await createClient()) as any
 
   const { error } = await supabase
     .from('products')
@@ -100,7 +100,7 @@ export async function updateProduct(id: string, formData: unknown) {
 }
 
 export async function deleteProduct(id: string) {
-  const supabase = await createClient()
+  const supabase = (await createClient()) as any
 
   const { error } = await supabase
     .from('products')
@@ -125,7 +125,7 @@ export async function createBlogPost(formData: unknown) {
     return { success: false, error: parsed.error.errors[0].message }
   }
 
-  const supabase = await createClient()
+  const supabase = (await createClient()) as any
 
   const { error } = await supabase
     .from('blog_posts')
@@ -148,7 +148,7 @@ export async function updateBlogPost(id: string, formData: unknown) {
     return { success: false, error: parsed.error.errors[0].message }
   }
 
-  const supabase = await createClient()
+  const supabase = (await createClient()) as any
 
   const { error } = await supabase
     .from('blog_posts')
@@ -166,7 +166,7 @@ export async function updateBlogPost(id: string, formData: unknown) {
 }
 
 export async function deleteBlogPost(id: string) {
-  const supabase = await createClient()
+  const supabase = (await createClient()) as any
 
   const { error } = await supabase
     .from('blog_posts')
