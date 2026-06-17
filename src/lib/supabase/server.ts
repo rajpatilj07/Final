@@ -1,184 +1,53 @@
-'use server'
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
+import type { Database } from '@/types/database'
 
-import { createClient } from '@/lib/supabase/server'
-import {
-  distributorSchema,
-  contactSchema,
-  productSchema,
-  blogSchema,
-} from '@/lib/validations'
-import { revalidatePath } from 'next/cache'
+export async function createClient() {
+  const cookieStore = await cookies()
 
-// ── Distributor Lead ───────────────────────────────────────────
-export async function submitDistributorLead(formData: unknown) {
-  const parsed = distributorSchema.safeParse(formData)
-
-  if (!parsed.success) {
-    return { success: false, error: parsed.error.errors[0].message }
-  }
-
-  const supabase = await createClient()
-
-  const { error } = await supabase
-    .from('distributor_leads')
-    .insert(parsed.data as any)
-
-  if (error) {
-    return { success: false, error: 'Submission failed. Please try again.' }
-  }
-
-  return { success: true }
+  return createServerClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll()
+        },
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              cookieStore.set(name, value, options)
+            })
+          } catch {
+            // Ignore errors in Server Components
+          }
+        },
+      },
+    }
+  )
 }
 
-// ── Contact Message ────────────────────────────────────────────
-export async function submitContactMessage(formData: unknown) {
-  const parsed = contactSchema.safeParse(formData)
+export async function createServiceClient() {
+  const cookieStore = await cookies()
 
-  if (!parsed.success) {
-    return { success: false, error: parsed.error.errors[0].message }
-  }
-
-  const supabase = await createClient()
-
-  const { error } = await supabase
-    .from('contact_messages')
-    .insert(parsed.data as any)
-
-  if (error) {
-    return { success: false, error: 'Message failed to send. Please try again.' }
-  }
-
-  return { success: true }
-}
-
-// ── Product CRUD ───────────────────────────────────────────────
-export async function createProduct(formData: unknown) {
-  const parsed = productSchema.safeParse(formData)
-
-  if (!parsed.success) {
-    return { success: false, error: parsed.error.errors[0].message }
-  }
-
-  const supabase = await createClient()
-
-  const { error } = await supabase
-    .from('products')
-    .insert(parsed.data as any)
-
-  if (error) {
-    return { success: false, error: error.message }
-  }
-
-  revalidatePath('/products')
-  revalidatePath('/admin/products')
-
-  return { success: true }
-}
-
-export async function updateProduct(id: string, formData: unknown) {
-  const parsed = productSchema.safeParse(formData)
-
-  if (!parsed.success) {
-    return { success: false, error: parsed.error.errors[0].message }
-  }
-
-  const supabase = await createClient()
-
-  const { error } = await supabase
-    .from('products')
-    .update(parsed.data as any)
-    .eq('id', id)
-
-  if (error) {
-    return { success: false, error: error.message }
-  }
-
-  revalidatePath('/products')
-  revalidatePath('/admin/products')
-
-  return { success: true }
-}
-
-export async function deleteProduct(id: string) {
-  const supabase = await createClient()
-
-  const { error } = await supabase
-    .from('products')
-    .delete()
-    .eq('id', id)
-
-  if (error) {
-    return { success: false, error: error.message }
-  }
-
-  revalidatePath('/products')
-  revalidatePath('/admin/products')
-
-  return { success: true }
-}
-
-// ── Blog CRUD ──────────────────────────────────────────────────
-export async function createBlogPost(formData: unknown) {
-  const parsed = blogSchema.safeParse(formData)
-
-  if (!parsed.success) {
-    return { success: false, error: parsed.error.errors[0].message }
-  }
-
-  const supabase = await createClient()
-
-  const { error } = await supabase
-    .from('blog_posts')
-    .insert(parsed.data as any)
-
-  if (error) {
-    return { success: false, error: error.message }
-  }
-
-  revalidatePath('/blog')
-  revalidatePath('/admin/blogs')
-
-  return { success: true }
-}
-
-export async function updateBlogPost(id: string, formData: unknown) {
-  const parsed = blogSchema.safeParse(formData)
-
-  if (!parsed.success) {
-    return { success: false, error: parsed.error.errors[0].message }
-  }
-
-  const supabase = await createClient()
-
-  const { error } = await supabase
-    .from('blog_posts')
-    .update(parsed.data as any)
-    .eq('id', id)
-
-  if (error) {
-    return { success: false, error: error.message }
-  }
-
-  revalidatePath('/blog')
-  revalidatePath('/admin/blogs')
-
-  return { success: true }
-}
-
-export async function deleteBlogPost(id: string) {
-  const supabase = await createClient()
-
-  const { error } = await supabase
-    .from('blog_posts')
-    .delete()
-    .eq('id', id)
-
-  if (error) {
-    return { success: false, error: error.message }
-  }
-
-  revalidatePath('/blog')
-  revalidatePath('/admin/blogs')
-
-  return { success: true }
+  return createServerClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll()
+        },
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              cookieStore.set(name, value, options)
+            })
+          } catch {
+            // Ignore errors
+          }
+        },
+      },
+    }
+  )
 }
